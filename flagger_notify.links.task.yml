@@ -1,0 +1,5 @@
+
+flagger_notify.settings_tab:
+  route_name: flagger_notify.settings_form
+  title: 'Settings'
+  base_route: flagger_notify.settings_form

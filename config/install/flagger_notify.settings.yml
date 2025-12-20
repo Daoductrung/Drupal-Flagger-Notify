@@ -1,0 +1,4 @@
+debug_mode: false
+default_subject: '[site:name] Update: "[node:title]"'
+default_body: '<p>Hello <strong>[user:display-name]</strong>,</p><p>We wanted to let you know that the content you bookmarked, <a href="[node:url:absolute]">[node:title]</a>, has recently been updated.</p><p><a href="[node:url:absolute]" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">View Update</a></p><p>Best regards,<br>[site:name] Team</p>'
+flags_config: {  }

@@ -1,0 +1,9 @@
+flagger_notify.settings_form:
+  path: '/admin/config/system/flagger-notify'
+  defaults:
+    _form: '\Drupal\flagger_notify\Form\SettingsForm'
+    _title: 'Flagger Notify Settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

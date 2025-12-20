@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Contains flagger_notify.module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function flagger_notify_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.flagger_notify':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Flagger Notify module sends email notifications to users when content they have flagged is updated. It uses the Drupal Queue API for performance and reliability.') . '</p>';
+      $output .= '<h3>' . t('Configuration') . '</h3>';
+      $output .= '<p>' . t('Configure the module options at the <a href=":settings">Flagger Notify settings page</a>. You can select which flags trigger notifications and customize the email template.', [':settings' => \Drupal::Url::fromRoute('flagger_notify.settings_form')->toString()]) . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function flagger_notify_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'content_update':
+      $message['subject'] = $params['subject'];
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8;';
+      
+      /** @var \Drupal\Core\Render\RendererInterface $renderer */
+      $renderer = \Drupal::service('renderer');
+      $message['body'][] = $renderer->renderPlain($params['body']);
+      break;
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Adds the updated node to the queue for notification processing.
+ */
+function flagger_notify_entity_update(EntityInterface $entity) {
+  // Only process published nodes.
+  if (!$entity instanceof NodeInterface || !$entity->isPublished()) {
+    return;
+  }
+
+  // Perform a quick check to see if any flags are enabled.
+  // If no flags are enabled, we shouldn't queue anything.
+  $config = \Drupal::config('flagger_notify.settings');
+  $flags_config = $config->get('flags_config');
+  if (empty($flags_config)) {
+    return;
+  }
+
+  // Check if already queued to prevent double processing.
+  $state = \Drupal::state();
+  $queue_key = 'flagger_notify.queued.' . $entity->id();
+  
+  if (!$state->get($queue_key)) {
+    // Add the node ID to the queue.
+    $queue_factory = \Drupal::queue('flagger_notify_worker');
+    $queue_factory->createItem((object) ['nid' => $entity->id()]);
+    
+    // Mark as queued.
+    $state->set($queue_key, TRUE);
+
+    if ($config->get('debug_mode')) {
+      \Drupal::logger('flagger_notify')->info('Node @nid added to notification queue.', ['@nid' => $entity->id()]);
+    }
+  }
+}

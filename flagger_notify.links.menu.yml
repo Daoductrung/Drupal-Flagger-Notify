@@ -1,0 +1,6 @@
+flagger_notify.settings_form:
+  title: 'Flagger Notify'
+  description: 'Configure flags that trigger notifications on content update and email templates.'
+  parent: system.admin_config_system
+  route_name: flagger_notify.settings_form
+  weight: 10

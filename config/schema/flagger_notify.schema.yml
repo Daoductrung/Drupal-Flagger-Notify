@@ -1,0 +1,33 @@
+flagger_notify.settings:
+  type: config_object
+  label: 'Flagger Notify settings'
+  mapping:
+    debug_mode:
+      type: boolean
+      label: 'Enable Debug Logging'
+    default_subject:
+      type: text
+      label: 'Default Email Subject'
+      translatable: true
+    default_body:
+      type: text
+      label: 'Default Email Body'
+      translatable: true
+    flags_config:
+      type: sequence
+      label: 'Flag Configurations'
+      sequence:
+        type: mapping
+        label: 'Flag Settings'
+        mapping:
+          enabled:
+            type: boolean
+            label: 'Enabled'
+          subject:
+            type: text
+            label: 'Email Subject'
+            translatable: true
+          body:
+            type: text
+            label: 'Email Body'
+            translatable: true

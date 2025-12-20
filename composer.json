@@ -1,0 +1,19 @@
+{
+  "name": "drupal/flagger_notify",
+  "type": "drupal-module",
+  "description": "Sends notifications to users when content they flagged (using selected flags) is updated via Cron.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Dao Duc Trung",
+      "homepage": "https://ddt.one",
+      "role": "Maintainer"
+    }
+  ],
+  "require": {
+    "drupal/core": "^11",
+    "drupal/flag": "^4.0",
+    "drupal/token": "^1.0"
+  },
+  "minimum-stability": "dev"
+}
