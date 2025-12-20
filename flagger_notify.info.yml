@@ -1,0 +1,19 @@
+name: Flagger Notify
+type: module
+description: 'Sends notifications to users when content they flagged (using selected flags) is updated via Cron.'
+core_version_requirement: ^11
+package: Custom
+version: 0.1
+project: flagger_notify
+
+autoload:
+  psr-4:
+    Drupal\flagger_notify\: src/
+
+
+dependencies:
+  - drupal:node
+  - drupal:user
+  - drupal:flag
+  - drupal:token
+configure: flagger_notify.settings_form
