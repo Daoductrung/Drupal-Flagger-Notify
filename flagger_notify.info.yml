@@ -3,8 +3,6 @@ type: module
 description: 'Sends notifications to users when content they flagged (using selected flags) is updated via Cron.'
 core_version_requirement: ^11
 package: Custom
-version: 0.1
-project: flagger_notify
 
 autoload:
   psr-4:

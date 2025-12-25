@@ -1,0 +1,4 @@
+administer flagger notify:
+  title: 'Administer Flagger Notify settings'
+  description: 'Allow users to configure Flagger Notify module settings.'
+  restrict access: true

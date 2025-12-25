@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 /**
  * @file
  * Contains flagger_notify.module.
@@ -20,7 +23,7 @@ function flagger_notify_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('The Flagger Notify module sends email notifications to users when content they have flagged is updated. It uses the Drupal Queue API for performance and reliability.') . '</p>';
       $output .= '<h3>' . t('Configuration') . '</h3>';
-      $output .= '<p>' . t('Configure the module options at the <a href=":settings">Flagger Notify settings page</a>. You can select which flags trigger notifications and customize the email template.', [':settings' => \Drupal::Url::fromRoute('flagger_notify.settings_form')->toString()]) . '</p>';
+      $output .= '<p>' . t('Configure the module options at the <a href=":settings">Flagger Notify settings page</a>. You can select which flags trigger notifications and customize the email template.', [':settings' => \Drupal\Core\Url::fromRoute('flagger_notify.settings_form')->toString()]) . '</p>';
       return $output;
   }
 }
@@ -61,19 +64,40 @@ function flagger_notify_entity_update(EntityInterface $entity) {
   }
 
   // Check if already queued to prevent double processing.
+  // Use Locking to prevent race conditions (e.g., simultaneous auto-saves).
   $state = \Drupal::state();
+  $lock = \Drupal::lock();
   $queue_key = 'flagger_notify.queued.' . $entity->id();
-  
-  if (!$state->get($queue_key)) {
-    // Add the node ID to the queue.
-    $queue_factory = \Drupal::queue('flagger_notify_worker');
-    $queue_factory->createItem((object) ['nid' => $entity->id()]);
-    
-    // Mark as queued.
-    $state->set($queue_key, TRUE);
+  $lock_name = 'flagger_notify_lock_' . $entity->id();
 
-    if ($config->get('debug_mode')) {
-      \Drupal::logger('flagger_notify')->info('Node @nid added to notification queue.', ['@nid' => $entity->id()]);
+  // Try to acquire a lock for 5 seconds.
+  if ($lock->acquire($lock_name, 5.0)) {
+    try {
+        if (!$state->get($queue_key)) {
+          // Add the node ID to the queue.
+          $queue_factory = \Drupal::queue('flagger_notify_worker');
+          $queue_factory->createItem((object) ['nid' => (int) $entity->id()]);
+            
+          // Mark as queued.
+          $state->set($queue_key, TRUE);
+
+          if ($config->get('debug_mode')) {
+            \Drupal::logger('flagger_notify')->info('Node @nid added to notification queue.', ['@nid' => $entity->id()]);
+          }
+        }
     }
+    finally {
+        $lock->release($lock_name);
+    }
+  }
+}
+/**
+ * Implements hook_entity_delete().
+ *
+ * Clean up the state key if a node is deleted while queued.
+ */
+function flagger_notify_entity_delete(EntityInterface $entity) {
+  if ($entity instanceof NodeInterface) {
+    \Drupal::state()->delete('flagger_notify.queued.' . $entity->id());
   }
 }

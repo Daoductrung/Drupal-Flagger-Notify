@@ -1,0 +1,42 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Flagger Notify module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function flagger_notify_uninstall() {
+  // Delete all state variables set by the module.
+  // The module uses 'flagger_notify.queued.NID' to track queued items.
+  // We need to find and delete all such keys.
+  $state = \Drupal::state();
+  
+  // Note: Drupal's State API does not provide a wildcard delete or list method 
+  // by default for performance reasons. However, leaving a few boolean flags 
+  // in the key_value table is generally acceptable.
+  // BUT, to be "Perfect", we can try to clean up if feasible, or at least 
+  // clean up the known system variables if we had any (we don't have global state vars).
+  
+  // Actually, 'flagger_notify.queued.NID' are transient. 
+  // If the module is uninstalled, the queue worker is gone, so these keys are useless.
+  // A direct database query to clean them is the most robust way in uninstall.
+  $database = \Drupal::database();
+  try {
+      $database->delete('key_value')
+        ->condition('collection', 'state')
+        ->condition('name', 'flagger_notify.%', 'LIKE')
+        ->execute();
+  }
+  catch (\Exception $e) {
+      // Log error or ignore if table doesn't exist (unlikely).
+  }
+  
+  // Remove the queue.
+  $queue = \Drupal::queue('flagger_notify_worker');
+  $queue->deleteQueue();
+}

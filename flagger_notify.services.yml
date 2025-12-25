@@ -1,4 +1,4 @@
 services:
   flagger_notify.service:
     class: Drupal\flagger_notify\Service\FlaggerNotifyService
-    arguments: ['@entity_type.manager', '@logger.factory', '@config.factory', '@database', '@language_manager', '@token', '@plugin.manager.mail', '@renderer']
+    arguments: ['@entity_type.manager', '@logger.factory', '@config.factory', '@database', '@language_manager', '@token', '@plugin.manager.mail']

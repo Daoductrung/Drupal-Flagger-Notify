@@ -2,7 +2,7 @@
 
 Hi, I'm **Dao Duc Trung**.
 
-I originally developed this module to solve a specific need for my website, **[ddt.one](https://ddt.one)**: notifying users via email when content they have "flagged" (bookmarked, subscribed, etc.) gets updated. While it was built for my personal use case, I believe it provides a solid foundation for anyone needing similar functionality in Drupal 11, so I'm releasing it as open source. Use it, fork it, or ignore it—it's up to you!
+I originally developed this module to solve a specific need for my website, **[ddt.one](https://ddt.one)**: notifying users via email when content they have "flagged" (bookmarked, subscribed, etc.) gets updated. While it was built for my personal use case, I believe it provides a solid foundation for anyone needing similar functionality in Drupal 11, so I released it publicly.
 
 ## Overview
 
@@ -43,7 +43,3 @@ I originally developed this module to solve a specific need for my website, **[d
 
 *   **Author**: [Dao Duc Trung](https://github.com/daoductrung)
 *   **Co-Pilot**: Code written and refined with the assistance of **Antigravity** (Google DeepMind).
-
-## License
-
-**MIT License**

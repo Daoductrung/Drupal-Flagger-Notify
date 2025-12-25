@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
+
 namespace Drupal\flagger_notify\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
@@ -85,6 +88,20 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('debug_mode') ?: FALSE,
     ];
 
+    $form['general']['retry_on_failure'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable Robust Retry (System Failure)'),
+      '#description' => $this->t('If enabled, system failures (e.g., database connection lost) will cause the notification to remain in the queue and retry later. Warning: Does not retry individual email send failures to prevent duplicates.'),
+      '#default_value' => $config->get('retry_on_failure') ?: FALSE,
+    ];
+
+    $form['general']['prevent_duplicate_emails'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Prevent Duplicate Emails (Spam Protection)'),
+      '#description' => $this->t('If a user has flagged content with multiple flags, should they receive only *one* email per update? Uncheck to allow multiple emails (one per flag).'),
+      '#default_value' => $config->get('prevent_duplicate_emails') !== NULL ? $config->get('prevent_duplicate_emails') : TRUE,
+    ];
+
     // Global Defaults Section
     $form['defaults'] = [
       '#type' => 'details',
@@ -125,6 +142,20 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'container',
       '#tree' => TRUE,
     ];
+
+    $has_node_flags = FALSE;
+    foreach ($flags as $flag) {
+      if ($flag instanceof FlagInterface && $flag->getFlaggableEntityTypeId() === 'node') {
+        $has_node_flags = TRUE;
+        break;
+      }
+    }
+
+    if (!$has_node_flags) {
+      $form['flags_config']['no_flags_message'] = [
+        '#markup' => '<div class="messages messages--warning">' . $this->t('No flags for content (nodes) were found. Please <a href="@url">create a Flag</a> for nodes to enable notifications.', ['@url' => \Drupal\Core\Url::fromRoute('entity.flag.collection')->toString()]) . '</div>',
+      ];
+    }
 
     foreach ($flags as $flag_id => $flag) {
       if ($flag instanceof FlagInterface && $flag->getFlaggableEntityTypeId() === 'node') {
@@ -195,6 +226,8 @@ class SettingsForm extends ConfigFormBase {
 
     $this->config('flagger_notify.settings')
       ->set('debug_mode', $form_state->getValue('debug_mode'))
+      ->set('retry_on_failure', $form_state->getValue('retry_on_failure'))
+      ->set('prevent_duplicate_emails', $form_state->getValue('prevent_duplicate_emails'))
       ->set('default_subject', $form_state->getValue('default_subject'))
       ->set('default_body', $form_state->getValue('default_body'))
       ->set('flags_config', $clean_flags_config)

@@ -4,6 +4,6 @@ flagger_notify.settings_form:
     _form: '\Drupal\flagger_notify\Form\SettingsForm'
     _title: 'Flagger Notify Settings'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer flagger notify'
   options:
     _admin_route: TRUE

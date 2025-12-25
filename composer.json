@@ -2,7 +2,7 @@
   "name": "drupal/flagger_notify",
   "type": "drupal-module",
   "description": "Sends notifications to users when content they flagged (using selected flags) is updated via Cron.",
-  "license": "MIT",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "Dao Duc Trung",
@@ -11,6 +11,7 @@
     }
   ],
   "require": {
+    "php": ">=8.3",
     "drupal/core": "^11",
     "drupal/flag": "^4.0",
     "drupal/token": "^1.0"

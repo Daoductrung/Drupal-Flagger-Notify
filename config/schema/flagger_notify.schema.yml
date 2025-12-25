@@ -5,6 +5,12 @@ flagger_notify.settings:
     debug_mode:
       type: boolean
       label: 'Enable Debug Logging'
+    retry_on_failure:
+      type: boolean
+      label: 'Retry on System Failure'
+    prevent_duplicate_emails:
+      type: boolean
+      label: 'Prevent Duplicate Emails'
     default_subject:
       type: text
       label: 'Default Email Subject'
